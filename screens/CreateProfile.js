@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert } from 'react-native';
-
+// import * as ImagePicker from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
 
 class CreateProfile extends Component {
@@ -65,6 +65,18 @@ class CreateProfile extends Component {
   
     return (
       <ScrollView style={styles.container}>
+         {/* <TouchableOpacity onPress={()=>{this.selectImage()}} style={{alignSelf:'center'}}>
+                        {this.state.uri?
+                (<Image 
+            source={{uri:this.state.uri}}
+            style={{ marginTop:20,width:120,borderRadius:80, height:120}}
+            
+            />):(<Image 
+                source={{uri:'https://www.flaticon.com/free-icon/user-picture_21104'}}
+                style={{ marginTop:20,width:120,borderRadius:40, height:120,alignSelf:'center'}}
+                
+                />)}
+            </TouchableOpacity> */}
         <View style={styles.inputGroup}>
           <TextInput
               placeholder={'Name'}

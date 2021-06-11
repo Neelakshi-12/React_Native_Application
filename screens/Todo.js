@@ -6,7 +6,8 @@ import {
     TextInput, 
     ScrollView, 
     TouchableOpacity ,
-    AsyncStorage
+    AsyncStorage,
+    Alert
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -15,186 +16,152 @@ import Note from './Note';
 
 export default class Todo extends React.Component {
 
-constructor(props){
-    super(props);
-    this.state = {
-        noteArray: [],
-        noteText: '',
-    }
-}
+        constructor(props){
+            super(props);
+            this.state = {
+                noteArray: [],
+                noteText: '',
+                isEdit : false,
+                editId : '',
+            }
+        }
 
   render() {
+            return (
+              <View style={styles.container}>
+                <View style={styles.header}>
+                  <Text style={styles.headerText}>Welcome 😉</Text>   
+                </View>
+                    <TextInput 
+                  style={styles.TextInputStyleClass}
+                  onChangeText={(text) => this.SearchFilterFunction(text)}
+                  value={this.state.text}
+                  underlineColorAndroid='transparent'
+                  placeholder="Search Here"
+                    />
 
-    let notes = this.state.noteArray.map((val, key) => {
-        return <Note key={key} keyval={key} val={val}
-                 deleteMethod={ () => this.deleteNote(key) } 
-                 editMethod = {() => this.editNote(key)}
-                />
-    });
+                <ScrollView style={styles.scrollContainer}>
+                  {
+                    this.state.noteArray.map((val, key) => {
+                      console.log("data",val);
+                      
+                      return <Note key={key} keyval={key} val={val}
+                              deleteMethod={this.deleteNote} 
+                              editMethod =  {this.editNote}
+                              />
+                  })
+                  }
+                </ScrollView>
 
-    return (
-      <View style={styles.container}>
-         <View style={styles.header}>
-          <Text style={styles.headerText}>Welcome 😉</Text>   
-        </View>
-        <TextInput 
-       style={styles.TextInputStyleClass}
-       onChangeText={(text) => this.SearchFilterFunction(text)}
-       value={this.state.text}
-       underlineColorAndroid='transparent'
-       placeholder="Search Here"
-        />
+                <View style={styles.footer}>
+                    <TextInput 
+                    style={styles.textInput} 
+                    placeholder='> Enter Your Notes Here'
+                    onChangeText={(noteText) => this.setState({noteText})}
+                    value={this.state.noteText}
+                    placeholderTextColor='white'
+                    underlineColorAndroid='transparent'
+                    >
+                  </TextInput>
+                </View>
 
-        <ScrollView style={styles.scrollContainer}>
-            {notes}
-        </ScrollView>
+                <TouchableOpacity onPress={ this.addNote.bind(this) } style={styles.addButton}>
+                  <Text style={styles.addButtonText}>+</Text>
+                </TouchableOpacity>
 
-        <View style={styles.footer}>
-            <TextInput 
-            style={styles.textInput} 
-            placeholder='> Enter Your Notes Here'
-            onChangeText={(noteText) => this.setState({noteText})}
-            value={this.state.noteText}
-            placeholderTextColor='white'
-            underlineColorAndroid='transparent'
-            >
-           </TextInput>
-        </View>
-
-        <TouchableOpacity onPress={ this.addNote.bind(this) } style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-      </View>
-    );
-  }
-//   SearchFilterFunction(text){
-     
-//     const newData = this.arrayholder.filter(function(item){
-//         const itemData = item.fruit_name.toUpperCase()
-//         const textData = text.toUpperCase()
-//         return itemData.indexOf(textData) > -1
-//     })
-//     this.setState({
-//         dataSource: this.state.dataSource.cloneWithRows(newData),
-//         text: text
-//     })
-// }
+              </View>
+            );
+         }
+          //   SearchFilterFunction(text){
+              
+          //     const newData = this.arrayholder.filter(function(item){
+          //         const itemData = item.fruit_name.toUpperCase()
+          //         const textData = text.toUpperCase()
+          //         return itemData.indexOf(textData) > -1
+          //     })
+          //     this.setState({
+          //         dataSource: this.state.dataSource.cloneWithRows(newData),
+          //         text: text
+          //     })
+          // }
   
-  async addNote(){
-    let i=parseInt(await AsyncStorage.getItem('taskid'),10)
-    if(i>=0){
-     
-    }else{
-       i=0; 
-    }
-    let uid1=auth().currentUser.uid
-        var taskinfo={
-           uid:uid1,
-           title: this.state.noteText,     
-        complete: false,
+        async addNote(){
+          if(this.state.isEdit == false){
+            let uid1=auth().currentUser.uid
+              
+            firestore()
+            .collection('Todo_tasks')
+            .add({
+              uid:uid1,
+                title: this.state.noteText,     
+              complete: false,
+              createdDate:new Date()
+            }).then((res)=>{
+              console.log('added');
+              this.setState({noteText:""});
+            }).catch((err)=>{
+              console.log("error")
+            })
+
+            Alert.alert("Task added successfully")
+
+      }else if(this.state.isEdit == true) {
+          //editing 
+
+                  firestore()
+                  .collection("Todo_tasks")
+                  .doc(this.state.editId)
+                  .update(
+                    {title:this.state.noteText}
+                  )
+                  .then(() => {
+                    console.log("Updated!");
+                    Alert.alert("Updated!!!");
+                    this.setState({isEdit:false,noteText : ""})
+                  });
+
+                  }
+        }
+
+        componentDidMount(){
+          console.log("helloo component",auth().currentUser.uid)
+          firestore().collection('Todo_tasks')
+          .where('uid', '==', auth().currentUser.uid)
+            .onSnapshot((querySnapshot) => {
+              console.log("hello1",);
+                var todoList= [];    //state 
+                querySnapshot.forEach((doc) => {
+                  console.log(doc.data());
+                    todoList.push({...doc.data(), id: doc.id});
+                });
+                console.log("notearray")
+                this.setState({
+                  
+                  noteArray : todoList,  //stored data
+                  
+                })
+          })
+        }
+
+        editNote= (id,text) =>{
+        console.log("Editing",id);
+        console.log("Editing",text);
+        this.setState({noteText:text,isEdit: true, editId : id});  
+        }
+
+        deleteNote=(id,text)=>{
+          console.log("deleteing",id);
+          console.log("deleting",text);
+           firestore()
+          .collection('Todo_tasks')
+          .doc(id)
+          .delete()
+          .then(() => {
+            console.log("Deleted!");
+            Alert.alert("Deleted!!");
+          });
 
         }
-      // if (this.state.noteText) {
-
-      //     var d = new Date();
-      //     this.state.noteArray.push({
-      //         'date': d.getFullYear() +
-      //         "/" + (d.getMonth() + 1) +
-      //         "/" + d.getDate(),
-      //         'note': this.state.noteText
-      //     });
-      //     this.setState({ noteArray: this.state.noteArray })
-      //     this.setState({ noteText: '' });
-
-      // }
-      firestore()
-      .collection('Todo_tasks')
-      .add(taskinfo)
-this.state.arr.push(taskinfo);
-
-AsyncStorage.setItem('taskid',(i+1).toString())
-Toast.show("Task added successfully")
-     
-  }
-
-  componentDidMount(){
-    console.log("helloo component",auth().currentUser.uid)
-    firestore().collection('Todo_tasks')
-    .where('uid', '==', auth().currentUser.uid)
-       .onSnapshot((querySnapshot) => {
-        console.log("hello1",);
-           var todoList= [];    //state 
-           querySnapshot.forEach((doc) => {
-             console.log(doc.data());
-               todoList.push({...doc.data(), id: doc.id});
-           });
-           console.log("notearray")
-           this.setState({
-             
-            noteArray : todoList,  //stored data
-            
-           })
-     })
-  }
-
-  
- 
-  // getData= async() => {
-  //   let todoIndex =0;
-  //  await firestore().collection('Todo_tasks')
-  //  .where('id', '==', auth().currentUser.uid)
-  //   .then((querySnapshot)=>{
-  //      querySnapshot.forEach((doc)=>{
-  //       AsyncStorage.setItem('taskid'+doc.data().todoIndex, doc.id) 
-  //       if(documentSnapshot.data().todoIndex>todoIndex){
-  //         todoIndex=documentSnapshot.data().todoIndex
-  //     } 
-  //      })
-  //   })
-  //   AsyncStorage.setItem('Totaltasks',(todoIndex+1).toString)
-  // }
-
-  // updateUser() {
-  //   this.setState({
-  //     isLoading: true,
-  //   });
-  //   const updateDBRef = firebase.firestore().collection('users').doc(this.state.key);
-  //   updateDBRef.set({
-  //     name: this.state.name,
-  //     email: this.state.email,
-  //     mobile: this.state.mobile,
-  //   }).then((docRef) => {
-  //     this.setState({
-  //       key: '',
-  //       name: '',
-  //       email: '',
-  //       mobile: '',
-  //       isLoading: false,
-  //     });
-  //     this.props.navigation.navigate('UserScreen');
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error: ", error);
-  //     this.setState({
-  //       isLoading: false,
-  //     });
-  //   });
-  // }
-
-  editNote(key){
-  console.log("Editing");
-  }
-
-  deleteNote(key){
-      this.state.noteArray.splice(key, 1);
-      this.setState({ noteArray: this.state.noteArray })
-      // const dbRef = firebase.firestore().collection('users').doc(this.props.route.params.userkey)
-      // dbRef.delete().then((res) => {
-      //     console.log('Item removed from database')
-      //     this.props.navigation.navigate('UserScreen');
-      // })
-  }
 }
 
 

@@ -9,16 +9,24 @@ import {
 
 
 export default class Note extends React.Component {
+  constructor(props){
+   super(props);
+  
+  }
+  
   render() {
+    console.log("Value",this.props.val);
+    console.log("title",this.props.val.title)
+    // console.log("note",this.props.val.note);
+  
     return (
       <View key={this.props.keyval} style={styles.note}>
-        <Text style={styles.noteText}>{this.props.val.date}</Text>
-        <Text style={styles.noteText}>{this.props.val.note}</Text>
-
-        <TouchableOpacity onPress={this.props.deleteMethod} style={styles.noteDelete}>
+        <Text style={styles.noteText}>{this.props.val.title}</Text>
+        <Text style={styles.dateText}>{Date()}</Text>
+        <TouchableOpacity onPress={()=> {this.props.deleteMethod(this.props.val.id,this.props.val.title)}} style={styles.noteDelete}>
             <Text style={styles.noteDeleteText}>Delete</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.props.editMethod} style={styles.noteEdit}>
+        <TouchableOpacity onPress={()=> {this.props.editMethod(this.props.val.id,this.props.val.title)}} style={styles.noteEdit}>
             <Text style={styles.noteEditText}>Edit</Text>
         </TouchableOpacity>
       </View>
@@ -38,7 +46,16 @@ const styles = StyleSheet.create({
       paddingLeft: 20,
       borderLeftWidth: 10,
       borderLeftColor: '#2e8099',
+      fontSize : 18
   },
+  dateText: {
+    paddingLeft: 20,
+    borderLeftWidth: 10,
+    borderLeftColor: '#2e8099',
+    fontSize : 11,
+    color : "red",
+    
+},
   noteDelete: {
       position: 'absolute',
       justifyContent: 'center',
