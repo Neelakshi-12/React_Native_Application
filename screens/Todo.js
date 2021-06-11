@@ -23,6 +23,8 @@ export default class Todo extends React.Component {
                 noteText: '',
                 isEdit : false,
                 editId : '',
+                searchText : '',
+                finalTodos : [],
             }
         }
 
@@ -32,13 +34,15 @@ export default class Todo extends React.Component {
                 <View style={styles.header}>
                   <Text style={styles.headerText}>Welcome 😉</Text>   
                 </View>
-                    <TextInput 
-                  style={styles.TextInputStyleClass}
-                  onChangeText={(text) => this.SearchFilterFunction(text)}
-                  value={this.state.text}
-                  underlineColorAndroid='transparent'
-                  placeholder="Search Here"
+                 
+                <View>
+                <TextInput
+                    onChangeText={(text) => {this.searchInput(text)}} 
+                    style={styles.searchInput}
+                    placeholder="Type a keyword to search"
+                    value= {this.state.searchText}
                     />
+                </View>
 
                 <ScrollView style={styles.scrollContainer}>
                   {
@@ -72,6 +76,27 @@ export default class Todo extends React.Component {
               </View>
             );
          }
+         searchInput=(text)=>{
+          console.log("search here!!",text);
+          const Data = this.state.finalTodos
+          console.log("Data",Data)
+          if(text){
+          const item = Data.filter((data)=>{
+            return data.title.toLowerCase().includes(text.toLowerCase())
+          })
+          this.setState({
+            noteArray: item,
+            searchText : text,
+          })
+          }else if(text == ''){
+                this.setState({
+                  noteArray : Data,
+                  searchText : '',
+          })
+          }
+          
+        }
+     
           //   SearchFilterFunction(text){
               
           //     const newData = this.arrayholder.filter(function(item){
@@ -138,7 +163,7 @@ export default class Todo extends React.Component {
                 this.setState({
                   
                   noteArray : todoList,  //stored data
-                  
+                  finalTodos : todoList
                 })
           })
         }
@@ -225,5 +250,12 @@ const styles = StyleSheet.create({
     borderRadius: 7 ,
     backgroundColor : "#FFFFFF"
          
+    },
+    searchInput:{
+      padding: 10,
+      margin:10,
+      borderRadius:20,
+      borderColor: '#CCC',
+      borderWidth: 1
     }
 });
