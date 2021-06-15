@@ -4,31 +4,72 @@ import {
     Text, 
     View, 
     TouchableOpacity ,
-    AsyncStorage
+    AsyncStorage,
+    Image,
+    TouchableHighlight
 } from 'react-native';
 
 
 export default class Note extends React.Component {
-  constructor(props){
-   super(props);
-  
-  }
-  
+  constructor(props) {
+    super(props);
+    this.state = {
+        pressed: false
+    };
+}
+
   render() {
     console.log("Value",this.props.val);
     console.log("title",this.props.val.title)
+    console.log("created date",this.props.val.createdDate)
     // console.log("note",this.props.val.note);
-  
+     var date =  this.props.val.createdDate
+     console.log("dateeeeee" , date)
     return (
       <View key={this.props.keyval} style={styles.note}>
-        <Text style={styles.noteText}>{this.props.val.title}</Text>
-        <Text style={styles.dateText}>{Date()}</Text>
+        <Text style={styles.noteText}>
+      
+         {this.props.val.title}
+        </Text>
+        <Text style={styles.dateText}>Created Date :  </Text>
+        
         <TouchableOpacity onPress={()=> {this.props.deleteMethod(this.props.val.id,this.props.val.title)}} style={styles.noteDelete}>
+          
             <Text style={styles.noteDeleteText}>Delete</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={()=> {this.props.editMethod(this.props.val.id,this.props.val.title)}} style={styles.noteEdit}>
             <Text style={styles.noteEditText}>Edit</Text>
         </TouchableOpacity>
+        {/* <TouchableHighlight  onPress={()=> {}}
+                    style={[
+                      styles.noteStar,
+                      this.state.pressed ? { backgroundColor: "yellow" } : {}
+                  ]}
+                  >
+                   onHideUnderlay={() => {
+                this.setState({ pressed: false });
+            }}
+            onShowUnderlay={() => {
+                this.setState({ pressed: true });
+            }}
+            <Text style={styles.noteEditText}>⭐</Text>
+        </TouchableHighlight> */}
+         <TouchableHighlight
+            onPress={() => {this.props.important(this.props.val.id,this.props.val.title)}}
+            
+            style={[
+                styles.noteStar,
+                this.state.pressed ? { backgroundColor: "#2e8099" } : {}
+            ]}
+            onHideUnderlay={() => {
+                this.setState({ pressed: true });
+            }}
+            onShowUnderlay={() => {
+                this.setState({ pressed: false });
+            }}
+        >
+           <Text style={styles.noteEditText}>⭐</Text>
+        </TouchableHighlight>
       </View>
     );
   }
@@ -83,5 +124,30 @@ const styles = StyleSheet.create({
 },
 noteEditText: { 
     color: 'white',
+},
+// noteStar: {
+//   position: 'absolute',
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   backgroundColor: '#2e8099',
+//   padding: 10,
+//   borderRadius :10,
+//   top: 20,
+//   bottom: 20,
+//   right: 133,
+// },
+noteStar: {
+  position: 'absolute',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 10,
+  borderColor: "#2e8099",
+  borderWidth: 1,
+  padding: 10,
+  borderRadius :10,
+  top: 20,
+  bottom: 20,
+  right: 133,
 }
+
 });

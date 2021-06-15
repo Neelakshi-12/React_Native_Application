@@ -10,12 +10,41 @@ import {
     Alert
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 
 import Note from './Note';
 
 export default class Todo extends React.Component {
+  _menu = null;
 
+  setMenuRef = ref => {
+    this._menu = ref;
+  };
+
+  hideMenu = () => {
+    this._menu.hide();
+  };
+
+  showMenu = () => {
+    this._menu.show();
+  };
+  setMenuRef1 = ref => {
+    this._menu = ref;
+  };
+
+  hideMenu1 = () => {
+    this._menu.hide();
+  };
+
+  showMenu1 = () => {
+    this._menu.show();
+  };
+
+
+
+  
         constructor(props){
             super(props);
             this.state = {
@@ -25,6 +54,7 @@ export default class Todo extends React.Component {
                 editId : '',
                 searchText : '',
                 finalTodos : [],
+                important:false
             }
         }
 
@@ -43,6 +73,40 @@ export default class Todo extends React.Component {
                     value= {this.state.searchText}
                     />
                 </View>
+                {/* <Menu
+          
+          button={
+            <Icon name="swap-vertical" size={22} color="#1abc9c" style={{alignSelf:'flex-end'}} onPress={()=>{this.showMenu()}} />}
+        >
+          <MenuItem onPress={()=> {}}>Alphabetical</MenuItem><MenuDivider />
+          <MenuItem onPress={()=>{}}>Last Modified</MenuItem><MenuDivider />
+          <MenuItem onPress={()=> {}}>Default</MenuItem>
+          <MenuDivider />
+        </Menu> */}
+    <View style={{flexDirection : 'row'}}>
+    <Menu
+          ref={this.setMenuRef}
+          button={<Text onPress={this.showMenu} style={styles.showMenu}>Sort ↕</Text>}
+        >
+          <MenuItem onPress={()=> {this.sorttask('Alphabetical')}} >Alphabetical</MenuItem>
+          <MenuItem onPress={()=> {this.sorttask('Last_modified')}}>Last Modified</MenuItem>
+          <MenuItem onPress={()=> {this.sorttask('Default')}} disabled>
+          All
+          </MenuItem>
+          <MenuDivider />
+        </Menu>
+        {/* <Menu
+          ref={this.setMenuRef1}
+          button={<Text onPress={this.showMenu1} style={styles.showMenu1}>Filter 🔽</Text>}
+        >
+          <MenuItem onPress={()=> {}} >Important</MenuItem>
+          <MenuItem onPress={()=> {}}>UnImportant</MenuItem>
+          <MenuItem onPress={()=> {}} disabled>
+          All
+          </MenuItem>
+          <MenuDivider />
+        </Menu> */}
+    </View>
 
                 <ScrollView style={styles.scrollContainer}>
                   {
@@ -52,6 +116,7 @@ export default class Todo extends React.Component {
                       return <Note key={key} keyval={key} val={val}
                               deleteMethod={this.deleteNote} 
                               editMethod =  {this.editNote}
+                              important = {this.important}
                               />
                   })
                   }
@@ -96,6 +161,38 @@ export default class Todo extends React.Component {
           }
           
         }
+
+        
+        sorttask=(sort_menu)=>{
+          console.log ("sorted:" )
+          let data=this.state.finalTodos
+          console.log("Sorted",data)
+          if(sort_menu=='Alphabetical'){
+            var sorted=data.sort( function( a, b ) {
+              a = a.title.toLowerCase();
+              b = b.title.toLowerCase();
+          
+              return a < b ? -1 : a > b ? 1 : 0;
+          });
+          this.setState({default_data:sorted})
+          }else if(sort_menu=='Last_modified'){
+            
+           let date = Date()
+            console.log("date  jgjhhh : ",date)
+            var sorted=data.sort( function( a, b ) {
+              // a= new Date(a.date);
+              // //a= a.getMilliseconds();
+              // b= new Date(b.date);
+              // //b= b.getMilliseconds();
+              // return a-b;
+          });
+          this.setState({default_data:sorted})
+          }else if(sort_menu=='Default'){
+            this.setState({default_data:data})
+          }
+          this.hideMenu()
+         } 
+        
      
           //   SearchFilterFunction(text){
               
@@ -113,14 +210,15 @@ export default class Todo extends React.Component {
         async addNote(){
           if(this.state.isEdit == false){
             let uid1=auth().currentUser.uid
-              
+            var date1= new Date();
             firestore()
             .collection('Todo_tasks')
             .add({
               uid:uid1,
                 title: this.state.noteText,     
               complete: false,
-              createdDate:new Date()
+              important:this.state.important,
+              createdDate:date1
             }).then((res)=>{
               console.log('added');
               this.setState({noteText:""});
@@ -137,12 +235,17 @@ export default class Todo extends React.Component {
                   .collection("Todo_tasks")
                   .doc(this.state.editId)
                   .update(
-                    {title:this.state.noteText}
+                    {title:this.state.noteText},
+                    {important:this.state.important},
                   )
                   .then(() => {
                     console.log("Updated!");
                     Alert.alert("Updated!!!");
-                    this.setState({isEdit:false,noteText : ""})
+                    this.setState({
+                      isEdit:false,
+                      noteText : "",
+                      important : false,
+                    })
                   });
 
                   }
@@ -187,6 +290,29 @@ export default class Todo extends React.Component {
           });
 
         }
+
+        important=async(id,text)=>{
+          console.log("important title",id)
+          console.log("important title",text)
+          firestore()
+          .collection('Todo_tasks')
+          .doc(await AsyncStorage.getItem('id'+id))
+          .update({
+            important:text[id].important,
+          })
+          .then(
+            console.log(text[id].important)
+          );
+          this.setState({
+            noteText:text,
+            important: true,
+           });
+        }
+        
+        
+
+     
+        
 }
 
 
@@ -257,5 +383,15 @@ const styles = StyleSheet.create({
       borderRadius:20,
       borderColor: '#CCC',
       borderWidth: 1
+    },
+    showMenu : {
+      fontWeight : "bold",
+      padding: 5,
+      marginHorizontal : 15
+    },
+    showMenu1 : {
+      fontWeight : "bold",
+      padding: 5,
+      marginHorizontal : 40
     }
 });
