@@ -31,17 +31,15 @@ export default class Todo extends React.Component {
     this._menu.show();
   };
   setMenuRef1 = ref => {
-    this._menu = ref;
+    this._menu1 = ref;
   };
-
   hideMenu1 = () => {
-    this._menu.hide();
+    this._menu1.hide();
   };
 
   showMenu1 = () => {
-    this._menu.show();
+    this._menu1.show();
   };
-
 
 
   
@@ -54,7 +52,6 @@ export default class Todo extends React.Component {
                 editId : '',
                 searchText : '',
                 finalTodos : [],
-                important:false
             }
         }
 
@@ -96,8 +93,8 @@ export default class Todo extends React.Component {
           <MenuDivider />
         </Menu>
         {/* <Menu
-          ref={this.setMenuRef1}
-          button={<Text onPress={this.showMenu1} style={styles.showMenu1}>Filter 🔽</Text>}
+          ref={this.setMenuRef}
+          button={<Text onPress={this.showMenu} style={styles.showMenu1}>Filter 🔽</Text>}
         >
           <MenuItem onPress={()=> {}} >Important</MenuItem>
           <MenuItem onPress={()=> {}}>UnImportant</MenuItem>
@@ -106,6 +103,16 @@ export default class Todo extends React.Component {
           </MenuItem>
           <MenuDivider />
         </Menu> */}
+         <Menu
+          ref={this.setMenuRef1}
+          button={
+            <Text style={styles.showMenu1}  onPress={()=>{this.showMenu1()}}>Filter 🔽</Text> }
+        >
+          <MenuItem onPress={()=>this.filtertask('Important')}>Important</MenuItem><MenuDivider />
+          <MenuItem onPress={()=>this.filtertask('irrelevant')}>Irrelevant</MenuItem><MenuDivider />
+          <MenuItem onPress={()=>this.filtertask('default')}>Default</MenuItem>
+          <MenuDivider />
+        </Menu>
     </View>
 
                 <ScrollView style={styles.scrollContainer}>
@@ -162,7 +169,29 @@ export default class Todo extends React.Component {
           
         }
 
-        
+        filtertask=(filter_type)=>{
+          let filtered_data=[]
+          if(filter_type=='Important'){
+            console.log("important")
+            const Data = this.state.finalTodos
+             console.log("important",Data)
+          filtered_data=Data.filter((title)=>title.isImportant==true)
+          this.setState({noteArray:filtered_data})
+          this.hideMenu1()
+          }else if(filter_type=='irrelevant'){
+            const Data = this.state.finalTodos
+            Alert.alert("irrelevant")
+            filtered_data=Data.filter((title)=>title.isImportant==false)
+            this.setState({noteArray:filtered_data})
+            this.hideMenu1()
+          }else{
+            //filtered_data=data
+            let data=this.state.finalTodos
+            this.setState({noteArray:data})
+            this.hideMenu1()
+          }
+        }
+
         sorttask=(sort_menu)=>{
           console.log ("sorted:" )
           let data=this.state.finalTodos
@@ -217,8 +246,8 @@ export default class Todo extends React.Component {
               uid:uid1,
                 title: this.state.noteText,     
               complete: false,
-              important:this.state.important,
-              createdDate:date1
+              createdDate:date1,
+              isImportant : false ,
             }).then((res)=>{
               console.log('added');
               this.setState({noteText:""});
@@ -296,16 +325,16 @@ export default class Todo extends React.Component {
           console.log("important title",text)
           firestore()
           .collection('Todo_tasks')
-          .doc(await AsyncStorage.getItem('id'+id))
+          .doc(id)
           .update({
-            important:text[id].important,
+            isImportant:true,
           })
           .then(
-            console.log(text[id].important)
+            console.log("Success")
           );
           this.setState({
             noteText:text,
-            important: true,
+            isImportant: true,
            });
         }
         
