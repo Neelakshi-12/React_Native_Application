@@ -66,7 +66,7 @@ export default class Todo extends React.Component {
                 <TextInput
                     onChangeText={(text) => {this.searchInput(text)}} 
                     style={styles.searchInput}
-                    placeholder="Type a keyword to search"
+                    placeholder="Type a keyword to search 🔎"
                     value= {this.state.searchText}
                     />
                 </View>
@@ -124,6 +124,7 @@ export default class Todo extends React.Component {
                               deleteMethod={this.deleteNote} 
                               editMethod =  {this.editNote}
                               important = {this.important}
+                              onchecked = {this.onchecked} 
                               />
                   })
                   }
@@ -132,7 +133,7 @@ export default class Todo extends React.Component {
                 <View style={styles.footer}>
                     <TextInput 
                     style={styles.textInput} 
-                    placeholder='> Enter Your Notes Here'
+                    placeholder='> Enter Your Notes Here 📝'
                     onChangeText={(noteText) => this.setState({noteText})}
                     value={this.state.noteText}
                     placeholderTextColor='white'
@@ -168,6 +169,8 @@ export default class Todo extends React.Component {
           }
           
         }
+
+        
 
         filtertask=(filter_type)=>{
           let filtered_data=[]
@@ -245,7 +248,7 @@ export default class Todo extends React.Component {
             .add({
               uid:uid1,
                 title: this.state.noteText,     
-              complete: false,
+              isComplete: false,
               createdDate:date1,
               isImportant : false ,
             }).then((res)=>{
@@ -265,7 +268,6 @@ export default class Todo extends React.Component {
                   .doc(this.state.editId)
                   .update(
                     {title:this.state.noteText},
-                    {important:this.state.important},
                   )
                   .then(() => {
                     console.log("Updated!");
@@ -273,7 +275,6 @@ export default class Todo extends React.Component {
                     this.setState({
                       isEdit:false,
                       noteText : "",
-                      important : false,
                     })
                   });
 
@@ -337,6 +338,27 @@ export default class Todo extends React.Component {
             isImportant: true,
            });
         }
+
+        
+          onchecked=async(id,text)=> {   
+            console.log("checked!!");                   //checkbox function
+            console.log("important title",id)
+            console.log("important title",text)
+            firestore()
+            .collection('Todo_tasks')
+            .doc(id)
+            .update({
+              isComplete : true,
+            })
+            .then(
+              console.log("Checked Success: Completed")
+           
+            );
+            this.setState({
+              noteText:text,
+              isComplete: true,
+             });
+          }
         
         
 
@@ -408,10 +430,10 @@ const styles = StyleSheet.create({
     },
     searchInput:{
       padding: 10,
-      margin:10,
+      margin:13,
       borderRadius:20,
-      borderColor: '#CCC',
-      borderWidth: 1
+      borderColor: '#2e8099',
+      borderWidth: 2
     },
     showMenu : {
       fontWeight : "bold",

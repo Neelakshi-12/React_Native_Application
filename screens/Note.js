@@ -6,19 +6,22 @@ import {
     TouchableOpacity ,
     AsyncStorage,
     Image,
-    TouchableHighlight
+    TouchableHighlight,
+    Alert
 } from 'react-native';
-
-
+import CheckBox from '@react-native-community/checkbox';
 export default class Note extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-        pressed: false
+        pressed: false,
     };
 }
 
   render() {
+
+
     console.log("Value",this.props.val);
     console.log("title",this.props.val.title)
     console.log("created date",this.props.val.createdDate)
@@ -27,33 +30,21 @@ export default class Note extends React.Component {
      console.log("dateeeeee" , date)
     return (
       <View key={this.props.keyval} style={styles.note}>
+        
         <Text style={styles.noteText}>
-      
+         
          {this.props.val.title}
         </Text>
         <Text style={styles.dateText}>Created Date :  </Text>
         
         <TouchableOpacity onPress={()=> {this.props.deleteMethod(this.props.val.id,this.props.val.title)}} style={styles.noteDelete}>
           
-            <Text style={styles.noteDeleteText}>Delete</Text>
+            <Text style={styles.noteDeleteText}>❌</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={()=> {this.props.editMethod(this.props.val.id,this.props.val.title)}} style={styles.noteEdit}>
-            <Text style={styles.noteEditText}>Edit</Text>
+            <Text style={styles.noteEditText}> 📝</Text>
         </TouchableOpacity>
-        {/* <TouchableHighlight  onPress={()=> {}}
-                    style={[
-                      styles.noteStar,
-                      this.state.pressed ? { backgroundColor: "yellow" } : {}
-                  ]}
-                  >
-                   onHideUnderlay={() => {
-                this.setState({ pressed: false });
-            }}
-            onShowUnderlay={() => {
-                this.setState({ pressed: true });
-            }}
-            <Text style={styles.noteEditText}>⭐</Text>
-        </TouchableHighlight> */}
+        
          <TouchableHighlight
             onPress={() => {this.props.important(this.props.val.id,this.props.val.title)}}
             
@@ -70,6 +61,9 @@ export default class Note extends React.Component {
         >
            <Text style={styles.noteEditText}>⭐</Text>
         </TouchableHighlight>
+        <View style={styles.checked}>
+          <CheckBox value={this.props.val.title.checked}  onValueChange={() => {this.props.onchecked(this.props.val.id,this.props.val.title)}} />
+        </View>
       </View>
     );
   }
@@ -102,7 +96,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#2e8099',
-      padding: 10,
+      padding: 8,
       borderRadius :10,
       top: 20,
       bottom: 20,
@@ -116,11 +110,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#2e8099',
-    padding: 10,
+    padding: 8,
     borderRadius :10,
     top: 20,
     bottom: 20,
-    right: 80,
+    right: 50,
 },
 noteEditText: { 
     color: 'white',
@@ -143,11 +137,22 @@ noteStar: {
   padding: 10,
   borderColor: "#2e8099",
   borderWidth: 1,
-  padding: 10,
+  padding: 8,
   borderRadius :10,
   top: 20,
   bottom: 20,
-  right: 133,
+  right: 95,
+},
+checked :{
+  position: 'absolute',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 2,
+  borderRadius :10,
+  borderColor: "grey",
+  borderWidth: 1,
+  top: 20,
+  bottom: 20,
+  right: 140,
 }
-
 });
