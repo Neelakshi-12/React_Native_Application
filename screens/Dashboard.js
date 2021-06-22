@@ -34,6 +34,7 @@ export default class Dashboard extends Component {
 
   signOut = () => {
    auth().signOut().then(() => {
+     AsyncStorage.setItem("loggedin", JSON.stringify(obj))
       this.props.navigation.navigate('Login')
     })
     .catch(error => this.setState({ errorMessage: error.message }))

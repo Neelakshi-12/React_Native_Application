@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator, AsyncStorage } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -11,6 +11,23 @@ export default class Login extends Component {
       password: '',
     }
   }
+
+  componentDidMount(){
+    const data = AsyncStorage.getItem("loggedIn");
+    if(data){
+      const getData = JSON.parse(data);
+      console.log("getdata",getData);
+      if(getData.email!=undefined && getData.pass!=undefined){
+        this.props.navigation.navigate('Dashboard')
+      }else{
+        this.props.navigation.navigate('Login')
+      }
+    }else{
+      console.log("no data exists");
+      this.props.navigation.navigate('Login')
+    }
+  }
+
   updateInputVal = (val, prop) => {
     const state = this.state;
     state[prop] = val;
@@ -34,6 +51,11 @@ export default class Login extends Component {
             email: '', 
             password: ''
           })
+          var obj= {
+            email : this.state.email,
+            password : this.state.password
+          }
+          AsyncStorage.setItem("loggedIn", JSON.stringify(obj));
           this.props.navigation.navigate('Dashboard')
         }else{
           Alert.alert("Email is Not Verified.")
