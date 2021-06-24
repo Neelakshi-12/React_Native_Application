@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert } from 'react-native';
-// import * as ImagePicker from 'react-native-image-picker';
+import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert,TouchableOpacity, Image } from 'react-native';
+import * as ImagePicker from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
 
 class CreateProfile extends Component {
@@ -16,6 +16,10 @@ class CreateProfile extends Component {
       mobile: '',
       dob: '',
       address:'',
+      image:'',
+      uri:null,
+      submit_image:false,
+      url:""
     };
   }
 
@@ -23,6 +27,29 @@ class CreateProfile extends Component {
     const state = this.state;
     state[prop] = val;
     this.setState(state);
+  }
+
+  selectImage = () => {                                //change image
+    const options = {
+      noData: true
+    }
+    ImagePicker.launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker')
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error)
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton)
+      } else {
+        const source = { uri: response.uri }
+        console.log(source)
+        this.setState({
+          image: source
+        })
+        this.setState({uri:this.state.image.uri})
+        this.setState({submit_image:true})
+      }
+    })
   }
 
   storeUser() {
@@ -61,22 +88,23 @@ class CreateProfile extends Component {
   }
 
 
+
   render() {
   
     return (
       <ScrollView style={styles.container}>
-         {/* <TouchableOpacity onPress={()=>{this.selectImage()}} style={{alignSelf:'center'}}>
+           <TouchableOpacity onPress={()=>{this.selectImage()}} style={{alignSelf:'center'}}>
                         {this.state.uri?
                 (<Image 
             source={{uri:this.state.uri}}
             style={{ marginTop:20,width:120,borderRadius:80, height:120}}
             
             />):(<Image 
-                source={{uri:'https://www.flaticon.com/free-icon/user-picture_21104'}}
+                source={{uri:'http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png'}}
                 style={{ marginTop:20,width:120,borderRadius:40, height:120,alignSelf:'center'}}
                 
                 />)}
-            </TouchableOpacity> */}
+            </TouchableOpacity>
         <View style={styles.inputGroup}>
           <TextInput
               placeholder={'Name'}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import AsyncStorage  from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 
 export default class Login extends Component {
@@ -12,12 +13,12 @@ export default class Login extends Component {
     }
   }
 
-  componentDidMount(){
-    const data = AsyncStorage.getItem("loggedIn");
+   async componentDidMount(){
+    const data =  await AsyncStorage.getItem("loggedIn");
     if(data){
       const getData = JSON.parse(data);
       console.log("getdata",getData);
-      if(getData.email!=undefined && getData.pass!=undefined){
+      if(getData.email!=undefined && getData.password!=undefined){
         this.props.navigation.navigate('Dashboard')
       }else{
         this.props.navigation.navigate('Login')
@@ -35,27 +36,32 @@ export default class Login extends Component {
   }
 
   userLogin = async () => {
+    console.log("login details",this.state.email,this.state.password)
+    
     if(this.state.email === '' && this.state.password === '') {
       Alert.alert('Enter details to signin!')
     } else {
      
        await auth()
       .signInWithEmailAndPassword(this.state.email, this.state.password)
-      
+    
       .then((res) => {
         if(res.user.emailVerified){
           console.log(res)
           console.log('User logged-in successfully!')
+          var obj= {
+            id : auth().currentUser.uid,
+            email : this.state.email,
+            password : this.state.password,
+          }
           Alert.alert('User logged-in successfully!')
           this.setState({
             email: '', 
             password: ''
           })
-          var obj= {
-            email : this.state.email,
-            password : this.state.password
-          }
-          AsyncStorage.setItem("loggedIn", JSON.stringify(obj));
+          
+          AsyncStorage.setItem("loggedIn",JSON.stringify(obj));
+          console.log("asyncstorage",obj)
           this.props.navigation.navigate('Dashboard')
         }else{
           Alert.alert("Email is Not Verified.")
