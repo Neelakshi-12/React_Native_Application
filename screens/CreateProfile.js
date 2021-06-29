@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert,TouchableOpacity, Image } from 'react-native';
-import * as ImagePicker from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
+
 
 class CreateProfile extends Component {
 
@@ -16,10 +16,7 @@ class CreateProfile extends Component {
       mobile: '',
       dob: '',
       address:'',
-      image:'',
-      uri:null,
-      submit_image:false,
-      url:""
+    
     };
   }
 
@@ -29,29 +26,7 @@ class CreateProfile extends Component {
     this.setState(state);
   }
 
-  selectImage = () => {                                //change image
-    const options = {
-      noData: true
-    }
-    ImagePicker.launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker')
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error)
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton)
-      } else {
-        const source = { uri: response.uri }
-        console.log(source)
-        this.setState({
-          image: source
-        })
-        this.setState({uri:this.state.image.uri})
-        this.setState({submit_image:true})
-      }
-    })
-  }
-
+  
   storeUser() {
     if(this.state.name === ''){
      alert('Fill at least your name!')
@@ -65,6 +40,7 @@ class CreateProfile extends Component {
         address :this.state.address,
         email: this.state.email,
         mobile: this.state.mobile,
+        // image : this.state.image,
 
       }).then((res) => {
         this.setState({
@@ -75,7 +51,11 @@ class CreateProfile extends Component {
           mobile: '',
           dob: '',
           address:'',
+          // image : '',
         });
+        if(this.state.image!=''){
+          this.uploadImage()
+      }
         console.log("User Added!!");
         Alert.alert("User Added Successfully!!");
         this.props.navigation.navigate('UserScreen')
@@ -93,18 +73,7 @@ class CreateProfile extends Component {
   
     return (
       <ScrollView style={styles.container}>
-           <TouchableOpacity onPress={()=>{this.selectImage()}} style={{alignSelf:'center'}}>
-                        {this.state.uri?
-                (<Image 
-            source={{uri:this.state.uri}}
-            style={{ marginTop:20,width:120,borderRadius:80, height:120}}
-            
-            />):(<Image 
-                source={{uri:'http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png'}}
-                style={{ marginTop:20,width:120,borderRadius:40, height:120,alignSelf:'center'}}
-                
-                />)}
-            </TouchableOpacity>
+       
         <View style={styles.inputGroup}>
           <TextInput
               placeholder={'Name'}

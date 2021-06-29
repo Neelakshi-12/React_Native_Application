@@ -19,9 +19,17 @@ export default class Note extends React.Component {
     };
 }
 
+//  getParsedDate(date){
+//   date = String(date).split(' ');
+//   var days = String(date[0]).split('-');
+//   var hours = String(date[1]).split(':');
+//   return [parseInt(days[0]), parseInt(days[1])-1, parseInt(days[2]), parseInt(hours[0]), parseInt(hours[1]), parseInt(hours[2])];
+ 
+// }
+
   render() {
-
-
+  
+    
     console.log("Value",this.props.val);
     console.log("title",this.props.val.title)
     console.log("created date",this.props.val.createdDate)
@@ -35,7 +43,7 @@ export default class Note extends React.Component {
          
          {this.props.val.title}
         </Text>
-        <Text style={styles.dateText}>Created Date :  </Text>
+        <Text style={styles.dateText}>Created Date : 2/June/2020 </Text>
         
         <TouchableOpacity onPress={()=> {this.props.deleteMethod(this.props.val.id,this.props.val.title)}} style={styles.noteDelete}>
           
